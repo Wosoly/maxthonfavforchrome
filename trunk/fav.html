@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  font-family: helvetica, arial, sans-serif;
+  font-size: 12px;
+  width: 300px;
+}
+ul.visible {
+	display:block;
+}
+ul.hidden {
+	display:none;
+}
+a{
+  cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+//收藏XML地址
+var favXmlUrl='http://fav.maxthon.cn/api/fav/read?uid=436019';
+
+var req;
+
+function show(text){
+	var t = document.getElementById("t");
+	t.innerHTML =t.innerHTML+"<br>"+text;
+}
+
+function comment(a){
+	a.innerHTML="\<!--"+a.innerHTML+"--\>";
+}
+
+function uncomment(a){
+	var str = a.innerHTML;
+	var h = str.indexOf("\<!--");
+	var t = str.lastIndexOf("--\>");
+	if (b==0 && t>0) {
+		a.innerHTML = str.substr(4,t-4);
+	}
+}
+
+//获取收藏XML
+function init(){
+	req = new XMLHttpRequest();
+	req.onload = handleResponse;
+	req.onerror = handleError;
+	req.open("GET", favXmlUrl, true);
+	req.send(null);
+}
+
+// XML解析错误
+function handleFeedParsingFailed(error) {
+  var fav = document.getElementById("fav");
+  fav.className = "error";
+  fav.innerText = "错误: " + error;
+}
+
+// Handles errors during the XMLHttpRequest.
+function handleError() {
+  handleFeedParsingFailed('获取收藏信息失败！');
+}
+
+// Handles parsing the feed data we got back from XMLHttpRequest.
+function handleResponse() {
+  var doc = req.responseXML;
+  if (!doc) {
+	handleFeedParsingFailed("非有效收藏信息.");//未登录情况下会出现
+	return;
+  }
+  var fav = document.getElementById("fav");
+  var favorites = doc.getElementsByTagName("favorites");
+  build(fav,favorites[0]);
+}
+
+function build(dd,ff){//在DOM节点dd下增加文件夹ff的收藏内容
+    var ns = ff.childNodes;
+
+	for (var i=0,f;f=ns[i];i++) {//f无效时结束循环
+		if (f.getAttribute("r")!="Trash" && f.getAttribute("t")!="__groups") {//不显示回收站内容
+
+			var d = document.createElement("li");
+			dd.appendChild(d);
+			var a = document.createElement("a");
+			d.appendChild(a);
+			if (f.tagName=="e"){
+				//链接
+				a.href = f.getAttribute("u");
+				a.target = "_blank";
+				a.innerText =f.getAttribute("t");
+			}else{
+				//文件夹
+				a.innerText = f.getAttribute("t");
+				var fd =document.createElement("ul");//下级收藏及文件夹
+				build(fd,f);
+				fd.className = "hidden";
+				d.appendChild(fd);
+				a.onclick = sh;
+			}
+		}
+	}
+}
+
+function sh(event){
+	var l = event.currentTarget.parentNode.lastChild;
+	if (l.className=="visible"){
+		l.className="hidden";
+	}else{
+		l.className="visible";
+	}
+}
+
+function build2(dd,ff){//在DOM节点dd下增加文件夹ff的收藏内容
+    var ns = ff.childNodes;
+
+	for (var i=0,f;f=ns[i];i++) {//f无效时结束循环
+		if (f.getAttribute("r")!="Trash" && f.getAttribute("t")!="__groups") {//不显示回收站内容
+
+			//t.innerHTML = t.innerHTML + f.tagName;
+
+			var d = document.createElement("div");
+			dd.appendChild(d);
+			if (f.tagName=="e"){
+				//链接
+				var a = document.createElement("a");
+				a.href = f.getAttribute("u");
+				a.target = "_blank";
+				a.innerHTML=f.getAttribute("t");
+				d.appendChild(a);
+			}else{
+				//文件夹
+				d.innerHTML=f.getAttribute("t");
+			}
+		}
+	}
+}
+
+function buildPreview(doc) {
+	var fav = document.getElementById("fav");
+	var favorites = doc.getElementsByTagName("favorites");
+	var t = document.getElementById("t");
+	comment(t);
+	//t.innerHTML = "1111";
+	var ns = favorites[0].childNodes;
+	for (var i=0,f;f=ns[i];i++) {//f无效时结束循环
+		if (f.getAttribute("r")!="Trash" && f.getAttribute("t")!="__groups") {//不显示回收站内容
+			var d = document.createElement("div");
+			if (f.tagName=="e"){//链接
+				var a = document.createElement("a");
+				a.href = f.getAttribute("u");
+				a.target = "_blank";
+				a.innerHTML=f.getAttribute("t");
+				d.appendChild(a);
+			}else{//文件夹
+				d.innerHTML=f.getAttribute("t");
+			}
+			fav.appendChild(d);
+		}
+	}
+}
+</script>
+<script type="text/javascript">
+var data = {
+	user: {
+		uid: 436019,
+		nickname: 'SoM杀生丸'
+	},
+	lang: 'zh-cn'
+};
+env.profileUrl = 'http://passport.maxthon.cn';
+</script>
+</head>
+<body onload="init();">
+ 	<div id="t"> 傲游在线收藏 </div>
+	<ul id="fav"></ul>
+</body>
+</html>
+
