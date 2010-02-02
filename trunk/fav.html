@@ -4,42 +4,28 @@
 <style>
 body {
   font-family: helvetica, arial, sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   width: 300px;
 }
-ul.visible {
-	display:block;
+ul{
+	list-style: url('icon-fav-collapsed.png') inside;
+	padding-left: 14px;
+	margin-left: 0;	
 }
-ul.hidden {
-	display:none;
-}
+ul.visible {display:block;}
+ul.hidden {display:none;}
 a{
-  cursor: pointer;
+	cursor: pointer;
+	text-decoration:none;
+	color: #000
 }
+img{vertical-align: middle}
 </style>
 <script type="text/javascript">
 //收藏XML地址
 var favXmlUrl='http://fav.maxthon.cn/api/fav/read?uid=436019';
 
 var req;
-
-function show(text){
-	var t = document.getElementById("t");
-	t.innerHTML =t.innerHTML+"<br>"+text;
-}
-
-function comment(a){
-	a.innerHTML="\<!--"+a.innerHTML+"--\>";
-}
-
-function uncomment(a){
-	var str = a.innerHTML;
-	var h = str.indexOf("\<!--");
-	var t = str.lastIndexOf("--\>");
-	if (b==0 && t>0) {
-		a.innerHTML = str.substr(4,t-4);
-	}
-}
 
 //获取收藏XML
 function init(){
@@ -87,11 +73,12 @@ function build(dd,ff){//在DOM节点dd下增加文件夹ff的收藏内容
 			if (f.tagName=="e"){
 				//链接
 				a.href = f.getAttribute("u");
-				a.target = "_blank";
-				a.innerText =f.getAttribute("t");
+				a.target = "_blank";				
+				a.innerText = short_fav(f.getAttribute("t"));
+				//a.innerHTML = '<img alt="" src="http://www.google.com/s2/favicons?domain_url='+f.getAttribute("u")+'" />'+short_fav(f.getAttribute("t"));
 			}else{
 				//文件夹
-				a.innerText = f.getAttribute("t");
+				a.innerHTML = '<img alt="" src="icon-fav-folder.png" />'+ f.getAttribute("t");
 				var fd =document.createElement("ul");//下级收藏及文件夹
 				build(fd,f);
 				fd.className = "hidden";
@@ -111,54 +98,18 @@ function sh(event){
 	}
 }
 
-function build2(dd,ff){//在DOM节点dd下增加文件夹ff的收藏内容
-    var ns = ff.childNodes;
-
-	for (var i=0,f;f=ns[i];i++) {//f无效时结束循环
-		if (f.getAttribute("r")!="Trash" && f.getAttribute("t")!="__groups") {//不显示回收站内容
-
-			//t.innerHTML = t.innerHTML + f.tagName;
-
-			var d = document.createElement("div");
-			dd.appendChild(d);
-			if (f.tagName=="e"){
-				//链接
-				var a = document.createElement("a");
-				a.href = f.getAttribute("u");
-				a.target = "_blank";
-				a.innerHTML=f.getAttribute("t");
-				d.appendChild(a);
-			}else{
-				//文件夹
-				d.innerHTML=f.getAttribute("t");
-			}
-		}
+function short_fav(t){
+	if (t.length>20)
+	{
+		var s=t.slice(0,17)+"...";
+		return s;
+	}
+	else
+	{
+		return t;
 	}
 }
 
-function buildPreview(doc) {
-	var fav = document.getElementById("fav");
-	var favorites = doc.getElementsByTagName("favorites");
-	var t = document.getElementById("t");
-	comment(t);
-	//t.innerHTML = "1111";
-	var ns = favorites[0].childNodes;
-	for (var i=0,f;f=ns[i];i++) {//f无效时结束循环
-		if (f.getAttribute("r")!="Trash" && f.getAttribute("t")!="__groups") {//不显示回收站内容
-			var d = document.createElement("div");
-			if (f.tagName=="e"){//链接
-				var a = document.createElement("a");
-				a.href = f.getAttribute("u");
-				a.target = "_blank";
-				a.innerHTML=f.getAttribute("t");
-				d.appendChild(a);
-			}else{//文件夹
-				d.innerHTML=f.getAttribute("t");
-			}
-			fav.appendChild(d);
-		}
-	}
-}
 </script>
 <script type="text/javascript">
 var data = {
