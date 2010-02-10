@@ -1,6 +1,6 @@
 {
   "name": "Maxthon Online Favorites",
-  "version": "0.2",
+  "version": "0.3",
   "description": "Display Maxthon Online Favorites in a popup.",
   "icons": { "128": "favicon.ico" },
   "browser_action": {
@@ -10,7 +10,6 @@
   },
   "permissions": [
     "tabs",
-    "http://fav.maxthon.cn/*",
-    "http://passport.maxthon.cn/"
+    "http://fav.maxthon.cn/api/fav/*"
   ]
 }
