@@ -23,17 +23,37 @@ img{vertical-align: middle}
 </style>
 <script type="text/javascript">
 //收藏XML地址
-var favXmlUrl='http://fav.maxthon.cn/api/fav/read?uid=436019';
-
+var favXmlUrl='http://fav.maxthon.cn/api/fav/';
+var favPar='read?uid=';
+var uid;
 var req;
 
 //获取收藏XML
 function init(){
 	req = new XMLHttpRequest();
-	req.onload = handleResponse;
+	//获取uid	
 	req.onerror = handleError;
-	req.open("GET", favXmlUrl, true);
+	req.open("GET", favXmlUrl, false);
 	req.send(null);
+	//addt(req.responseText);
+	if (get_uid(req.responseText)) {
+		req.onload = handleResponse;
+		req.open("GET", favXmlUrl+favPar+uid, true);
+		req.send(null);
+	}else{
+		chrome.tabs.create({url: favXmlUrl});
+		handleFeedParsingFailed("未登录傲游在线收藏！");
+	}	
+}
+
+function get_uid(tt){
+	var p = tt.indexOf("uid");
+	if  (p>=0){
+		p=p+5;
+		var l = tt.indexOf(",",p);
+		uid = tt.slice(p,l);
+	}
+	return	(p>=0);
 }
 
 // XML解析错误
@@ -110,17 +130,13 @@ function short_fav(t){
 	}
 }
 
+function addt(tt){
+	var i = document.getElementById("t");
+	i.innerHTML=i.innerHTML+"<br>"+tt; 
+}
+
 </script>
-<script type="text/javascript">
-var data = {
-	user: {
-		uid: 436019,
-		nickname: 'SoM杀生丸'
-	},
-	lang: 'zh-cn'
-};
-env.profileUrl = 'http://passport.maxthon.cn';
-</script>
+
 </head>
 <body onload="init();">
  	<div id="t"> 傲游在线收藏 </div>
