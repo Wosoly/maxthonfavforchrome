@@ -2,7 +2,8 @@
   "name": "Maxthon Online Favorites",
   "version": "0.3",
   "description": "Display Maxthon Online Favorites in a popup.",
-  "icons": { "128": "favicon.ico" },
+  "icons": { "128": "128.png",
+			 "48" : "48.png"},
   "browser_action": {
     "default_title": "Maxthon Online Favorites",
     "default_icon": "favicon.ico",
