@@ -22,30 +22,48 @@ a{
 img{vertical-align: middle}
 </style>
 <script type="text/javascript">
-//收藏XML地址
+//2018年11月28日 由于傲游收藏内容由XML格式改成JSON格式，导致以下方法无法正常获取收藏
+//设计思路：登录获取傲游网站的uid，然后通过网页获取对应收藏信息的XML文档，通过解析文档，生成对应的收藏目录。
+//收藏XML地址：http://fav.maxthon.cn/api/fav/read?uid=436019
 var favXmlUrl='http://fav.maxthon.cn/api/fav/';
 var favPar='read?uid=';
-var uid;
+var uid='436019';
+//var uid;
 var req;
 
 //获取收藏XML
 function init(){
+	addt("init");	
 	req = new XMLHttpRequest();
 	//获取uid	
 	req.onerror = handleError;
-	req.open("GET", favXmlUrl, false);
-	req.send(null);
-	//addt(req.responseText);
-	if (get_uid(req.responseText)) {
-		req.onload = handleResponse;
+
+	// req.open("GET", favXmlUrl, false);
+    // req.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+    // req.setRequestHeader("Access-Control-Allow-Origin", "*");	
+	// req.send(null);
+	// addt("sent");		
+	// addt(req.responseText);
+	
+		req.onload = handleResponse;	
 		req.open("GET", favXmlUrl+favPar+uid, true);
 		req.send(null);
+		//Firefox 控制台报错 CORS 头缺少 'Access-Control-Allow-Origin'）。
+		//Chrome 控制端 上报错：No 'Access-Control-Allow-Origin' header is present on the requested resource.
+		//服务器不支持跨域操作。
+		addt(req.responseText);		
+
+	if (get_uid(req.responseText)) {//服务器返回更新，不能获取uid
+
+
 	}else{
 		chrome.tabs.create({url: favXmlUrl});
 		handleFeedParsingFailed("未登录傲游在线收藏！");
 	}	
+	addt("init done!");
 }
 
+//获取uid
 function get_uid(tt){
 	var p = tt.indexOf("uid");
 	if  (p>=0){
@@ -53,14 +71,14 @@ function get_uid(tt){
 		var l = tt.indexOf(",",p);
 		uid = tt.slice(p,l);
 	}
-	return	(p>=0);
+	return (p>=0);
 }
 
 // XML解析错误
 function handleFeedParsingFailed(error) {
   var fav = document.getElementById("fav");
   fav.className = "error";
-  fav.innerText = "错误: " + error;
+  fav.innerText = "XML解析错误: " + error;
 }
 
 // Handles errors during the XMLHttpRequest.
@@ -71,6 +89,7 @@ function handleError() {
 // Handles parsing the feed data we got back from XMLHttpRequest.
 function handleResponse() {
   var doc = req.responseXML;
+	addt("handleResponse");  
   if (!doc) {
 	handleFeedParsingFailed("非有效收藏信息.");//未登录情况下会出现
 	return;
@@ -81,6 +100,7 @@ function handleResponse() {
 }
 
 function build(dd,ff){//在DOM节点dd下增加文件夹ff的收藏内容
+	addt("build");
     var ns = ff.childNodes;
 
 	for (var i=0,f;f=ns[i];i++) {//f无效时结束循环
@@ -130,7 +150,9 @@ function short_fav(t){
 	}
 }
 
+//测试工具
 function addt(tt){
+	console.log(tt);
 	var i = document.getElementById("t");
 	i.innerHTML=i.innerHTML+"<br>"+tt; 
 }
